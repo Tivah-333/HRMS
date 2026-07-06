@@ -16,4 +16,4 @@ class User(AbstractUser):
         ('intern', 'Student Intern'),
     ]
 
-    role = models.CharField(max_length=30, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=30, choices=ROLE_CHOICES)    
