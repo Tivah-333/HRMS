@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 class MobilityStatus(models.TextChoices):
@@ -60,3 +61,61 @@ class TransferRequest(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+class JobRotation(models.Model):
+    employee = models.ForeignKey(
+        "employees.Employee",
+        on_delete=models.CASCADE
+    )
+    current_position = models.ForeignKey(
+        "employees.Position",
+        on_delete=models.PROTECT,
+        related_name="rotation_from"
+    )
+    new_position = models.ForeignKey(
+        "employees.Position",
+        on_delete=models.PROTECT,
+        related_name="rotation_to"
+    )
+    start_date = models.DateField()
+    end_date = models.DateField()
+    objectives = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=MobilityStatus.choices,
+        default=MobilityStatus.DRAFT
+    )
+    initiated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT
+    )
+    created_at = models.DateTimeField(auto_now_add=True)    
+    
+class MobilityHistory(models.Model):
+    employee = models.ForeignKey(
+        "employees.Employee",
+        on_delete=models.CASCADE
+    )
+    movement_type = models.CharField(
+        max_length=50,
+        choices=[
+            ("TRANSFER", "Transfer"),
+            ("ROTATION", "Rotation"),
+        ]
+    )
+    from_department = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    to_department = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    effective_date = models.DateField()
+    remarks = models.TextField(
+        blank=True
+    )
+    recorded_at = models.DateTimeField(
+        auto_now_add=True
+    )    
+        
